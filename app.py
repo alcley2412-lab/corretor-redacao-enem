@@ -5,7 +5,7 @@ st.set_page_config(page_title="Corretor ENEM", page_icon="✍️")
 st.title("✍️ Mentor de Redação ENEM")
 
 # Coloque sua CHAVE API aqui
-CHAVE_API = "SUA_CHAVE_AQUI"
+CHAVE_API = "AIzaSyDEz_e9-R7usMGg9UTLvVp6dXCJhF_mmlA"
 
 genai.configure(api_key=CHAVE_API)
 
