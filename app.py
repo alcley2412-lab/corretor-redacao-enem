@@ -1,39 +1,39 @@
 import streamlit as st
 import google.generativeai as genai
 
-# 1. Configuração da Página
+# Configuração da Página
 st.set_page_config(page_title="Corretor ENEM", page_icon="✍️")
 st.title("✍️ Mentor de Redação ENEM")
 
-# 2. Configuração da API
-# DICA: Verifique se não há espaços antes ou depois da chave
-CHAVE_API = "AIzaSyDXZMPnBHlQ36-LQSUEusuuW1VM7cAn_KA" 
+# Chave API - Substitua apenas o que está entre aspas
+CHAVE_API = "AIzaSyDEz_e9-R7usMGg9UTLvVp6dXCJhF_mmlA" 
 
-genai.configure(api_key=CHAVE_API)
-
-# MUDANÇA AQUI: Testando o modelo sem o prefixo 'models/' 
-# e usando o 1.5-flash que é o mais compatível atualmente
+# Configuração robusta
 try:
+    genai.configure(api_key=CHAVE_API)
+    # Usamos 'gemini-1.5-flash' sem nenhum prefixo. 
+    # Se falhar, o código tentará o 'gemini-pro'.
     model = genai.GenerativeModel('gemini-1.5-flash')
 except Exception as e:
-    st.error(f"Erro ao carregar o modelo: {e}")
+    st.error(f"Erro de configuração: {e}")
 
-# 3. Interface
 texto_aluno = st.text_area("Cole sua redação aqui:", height=300)
 
 if st.button("Analisar Redação"):
     if texto_aluno:
         with st.spinner('Analisando...'):
             try:
-                # Prompt direto e simples para testar a conexão
-                response = model.generate_content(
-                    f"Atue como um corretor do ENEM. Corrija o texto: {texto_aluno}"
-                )
-                st.markdown("### Resultado:")
-                st.write(response.text)
-            except Exception as e:
-                # Se o erro 404 persistir, vamos tentar o modelo 1.0 Pro
-                st.error(f"Erro na análise: {e}")
-                st.info("Tentando uma rota alternativa... Edite o código para 'gemini-1.0-pro' se o erro persistir.")
+                # Tentativa 1: Flash
+                response = model.generate_content(f"Corrija para o ENEM: {texto_aluno}")
+                st.markdown(response.text)
+            except Exception:
+                try:
+                    # Tentativa 2: Rota de emergência com modelo Pro
+                    model_alt = genai.GenerativeModel('gemini-pro')
+                    response = model_alt.generate_content(f"Corrija para o ENEM: {texto_aluno}")
+                    st.markdown(response.text)
+                except Exception as e2:
+                    st.error(f"Erro persistente: {e2}")
+                    st.info("Dica: Vá ao Google AI Studio e crie uma NOVA chave API em um 'New Project'.")
     else:
-        st.warning("O campo de texto está vazio.")
+        st.warning("O campo está vazio.")
