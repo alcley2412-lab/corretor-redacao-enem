@@ -1,36 +1,42 @@
 import streamlit as st
 import google.generativeai as genai
 
-# Configuração da Página
 st.set_page_config(page_title="Corretor ENEM", page_icon="✍️")
 st.title("✍️ Mentor de Redação ENEM")
 
-# CHAVE API - Use uma chave NOVA se possível
-CHAVE_API = "AIzaSyDEz_e9-R7usMGg9UTLvVp6dXCJhF_mmlA" 
+# Coloque sua CHAVE API aqui
+CHAVE_API = "SUA_CHAVE_AQUI"
 
-# Configuração da API
 genai.configure(api_key=CHAVE_API)
 
-# Interface
-tema = st.text_input("Tema da Redação:")
-texto_aluno = st.text_area("Cole sua redação aqui:", height=300)
+def buscar_modelo():
+    """Busca o primeiro modelo disponível que suporta geração de conteúdo"""
+    try:
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                # Retorna o nome do modelo (ex: models/gemini-1.5-flash)
+                return m.name
+    except Exception as e:
+        st.error(f"Erro ao acessar a API: {e}")
+    return None
 
-if st.button("Analisar Redação"):
-    if texto_aluno:
-        with st.spinner('Analisando...'):
-            try:
-                # O segredo: Usar apenas 'gemini-1.5-flash' sem o prefixo 'models/'
-                # Isso resolve o conflito da versão v1beta
-                model = genai.GenerativeModel('gemini-1.5-flash')
-                
-                prompt = f"Corrija esta redação para o tema '{tema}' seguindo os critérios do ENEM: {texto_aluno}"
-                
-                response = model.generate_content(prompt)
-                st.markdown("### Resultado da Avaliação:")
-                st.write(response.text)
-                
-            except Exception as e:
-                st.error(f"Erro na análise: {e}")
-                st.info("Se o erro persistir, tente criar uma chave API em 'Create API key in new project' no Google AI Studio.")
-    else:
-        st.warning("Por favor, preencha o texto.")
+nome_do_modelo = buscar_modelo()
+
+if nome_do_modelo:
+    st.success(f"Conectado com sucesso ao modelo: {nome_do_modelo}")
+    
+    texto_aluno = st.text_area("Cole sua redação aqui:", height=300)
+    
+    if st.button("Analisar Redação"):
+        if texto_aluno:
+            with st.spinner('Analisando...'):
+                try:
+                    model = genai.GenerativeModel(nome_do_modelo)
+                    response = model.generate_content(f"Corrija para o ENEM: {texto_aluno}")
+                    st.markdown(response.text)
+                except Exception as e:
+                    st.error(f"Erro na análise: {e}")
+        else:
+            st.warning("O campo está vazio.")
+else:
+    st.error("Nenhum modelo disponível encontrado. Verifique se sua chave API é nova e foi criada em 'Create API key in NEW project'.")
