@@ -7,7 +7,7 @@ st.title("✍️ Mentor de Redação ENEM")
 
 # 2. Configuração da API
 # DICA: Verifique se não há espaços antes ou depois da chave
-CHAVE_API = "AIzaSyDEz_e9-R7usMGg9UTLvVp6dXCJhF_mmlA" 
+CHAVE_API = "AIzaSyDXZMPnBHlQ36-LQSUEusuuW1VM7cAn_KA" 
 
 genai.configure(api_key=CHAVE_API)
 
