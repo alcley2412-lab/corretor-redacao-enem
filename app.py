@@ -5,35 +5,32 @@ import google.generativeai as genai
 st.set_page_config(page_title="Corretor ENEM", page_icon="✍️")
 st.title("✍️ Mentor de Redação ENEM")
 
-# Chave API - Substitua apenas o que está entre aspas
-CHAVE_API = "AIzaSyDEz_e9-R7usMGg9UTLvVp6dXCJhF_mmlA" 
+# CHAVE API - Use uma chave NOVA se possível
+CHAVE_API = "SUA_CHAVE_AQUI" 
 
-# Configuração robusta
-try:
-    genai.configure(api_key=CHAVE_API)
-    # Usamos 'gemini-1.5-flash' sem nenhum prefixo. 
-    # Se falhar, o código tentará o 'gemini-pro'.
-    model = genai.GenerativeModel('gemini-1.5-flash')
-except Exception as e:
-    st.error(f"Erro de configuração: {e}")
+# Configuração da API
+genai.configure(api_key=CHAVE_API)
 
+# Interface
+tema = st.text_input("Tema da Redação:")
 texto_aluno = st.text_area("Cole sua redação aqui:", height=300)
 
 if st.button("Analisar Redação"):
     if texto_aluno:
         with st.spinner('Analisando...'):
             try:
-                # Tentativa 1: Flash
-                response = model.generate_content(f"Corrija para o ENEM: {texto_aluno}")
-                st.markdown(response.text)
-            except Exception:
-                try:
-                    # Tentativa 2: Rota de emergência com modelo Pro
-                    model_alt = genai.GenerativeModel('gemini-pro')
-                    response = model_alt.generate_content(f"Corrija para o ENEM: {texto_aluno}")
-                    st.markdown(response.text)
-                except Exception as e2:
-                    st.error(f"Erro persistente: {e2}")
-                    st.info("Dica: Vá ao Google AI Studio e crie uma NOVA chave API em um 'New Project'.")
+                # O segredo: Usar apenas 'gemini-1.5-flash' sem o prefixo 'models/'
+                # Isso resolve o conflito da versão v1beta
+                model = genai.GenerativeModel('gemini-1.5-flash')
+                
+                prompt = f"Corrija esta redação para o tema '{tema}' seguindo os critérios do ENEM: {texto_aluno}"
+                
+                response = model.generate_content(prompt)
+                st.markdown("### Resultado da Avaliação:")
+                st.write(response.text)
+                
+            except Exception as e:
+                st.error(f"Erro na análise: {e}")
+                st.info("Se o erro persistir, tente criar uma chave API em 'Create API key in new project' no Google AI Studio.")
     else:
-        st.warning("O campo está vazio.")
+        st.warning("Por favor, preencha o texto.")
